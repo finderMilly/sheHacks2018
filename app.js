@@ -19,20 +19,39 @@ server.post('/api/messages', connector.listen());
 
 
 
-var bot = new builder.UniversalBot(connector, function (session) {
+var bot = new builder.UniversalBot(connector, [
+  function (session) {
     var formattedMsg = session.message.text.toLowerCase();
+    var options = [];
+    store.products.forEach( function(element) {
+      options.push(element.name)
+    });
     console.log(formattedMsg)
-    var result = products.find(product => formattedMsg.indexOf(product.name)>=0);
+    var result = store.products.find(product => formattedMsg.indexOf(product.name)>=0);
     //session.send("You said: %s", session.message.text);
     builder.Prompts.choice(
         session,
         'May I offer one of the following options?',
-        [result.name, 'Test'],
+        options,
         {
             maxRetries: 3,
-            retryPrompt: "I'm sorry, that's not an option. Please try again!"
+            retryPrompt: "I'm sorry, that's not an option. Please try again!",
+            listStyle:builder.ListStyle.button
         });
-});
+},
+function (session, results) {
+  session.dialogData.destination = results.response;
+  builder.Prompts.text(`You have selected ${results.response}`);
+}
+]);
+
+
+
+// var respond = async function (session, results, next) {
+//   session.dialogData.destination = results.response;
+//   session.send('Looking for hotels in %s', results.response);
+//   next();
+// }
 
 
 bot.on('error', function (e) {
