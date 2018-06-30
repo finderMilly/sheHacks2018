@@ -1,6 +1,7 @@
 var restify = require('restify');
 var builder = require('botbuilder');
 var store = require('./products.js');
+var analysis = require('./analysis.js');
 
 // Setup Restify Server
 var server = restify.createServer();
@@ -20,22 +21,37 @@ server.post('/api/messages', connector.listen());
 
 var itemSelection = function (session) {
   // var formattedMsg = session.message.text.toLowerCase();
-  var options = [];
-  store.products.forEach( function(element) {
-    options.push(element.name)
+  analysis.get_sentiments(session.message.text, function(result) { 
+    var options = [];
+    session.send(`${result.documents[0].score}`)
+    var score = result.documents[0].score;
+
+  store.products.forEach( function(product) {
+    if (Math.abs(product.sentiment - score) < .3 ) {
+      options.push(product.name)
+    }
+
   });
+
   // console.log(formattedMsg)
   // var result = store.products.find(product => formattedMsg.indexOf(product.name)>=0);
   //session.send("You said: %s", session.message.text);
+  var response = "";
+  if (score > .5 ) {
+    response = `Let's Celebrate! Would you like to spoil yourself with one of the following?`;
+  } else {
+    response = 'Sounds like you could do with some TLC. Did you want to treat yourself with one of the following?';
+  }
   builder.Prompts.choice(
       session,
-      'Sure thing Joyce. Sounds like you could do with some TLC. Did you want to treat yourself with one of the following?',
+      response,
       options,
       {
           maxRetries: 3,
           retryPrompt: "Oh no! We don't have that, I'm sorry! Would you like to try one of these?",
           listStyle:builder.ListStyle.button
       });
+  })
 };
 
 var summary = function (session, results) {
@@ -62,29 +78,41 @@ var confirmation = function (session, results) {
   }
   if (index == 0) { //response is yes
     session.send(`Great! Glad to be there for you Joyce. We'll be there for you within 30 minutes.`);
-    session.endDialogWithResult(results)
     followup(session, results);
   }
 };
 
 var followup = function (session, results) {
   {console.log(results)}; // = 0
-  builder.Prompts.choice(
-    session,
-     `We know waiting is one of the hardest things to do, so here's something from us in the meantime to keep you going... which would you prefer?`,
-     ['Ryan Gosling', 'Empowering song', 'Sad girl poetry'],
-     {
-         maxRetries: 3,
-        retryPrompt: "I'm sorry, that's not an option. Please try again!",
-        listStyle:builder.ListStyle.button
-    });
-    gift(session, results);
+  setTimeout(function(){ 
+    builder.Prompts.choice(
+      session,
+       `We know waiting is one of the hardest things to do, so here's something from us in the meantime to keep you going... which would you prefer?`,
+       ['Ryan Gosling', 'Empowering song', 'Sad girl poetry'],
+       {
+           maxRetries: 3,
+          retryPrompt: "I'm sorry, that's not an option. Please try again!",
+          listStyle:builder.ListStyle.button
+      });
+  }, 3000).then( function() {
+    var choice = results.response.index;
+    if (index == 0) { //response is ryan gosling
+      session.endDialog(`You're going to like this! Just follow this link: https://i.imgflip.com/a6znr.jpg`);
+    }
+    if (index == 1) { //response is song
+      session.endDialog(`You're going to like this! Just follow this link: https://i.imgflip.com/a6znr.jpg`);
+    }
+    if (index == 2) { //response is poetry
+      session.endDialog(`You're going to like this! Just follow this link: https://assets.rbl.ms/10463908/980x.png`);
+    }
+  });
+  
   };
 
 var gift = function (session, results) {
   {console.log(results)};
-  var index = results.response.index;
-  if (index==0) { //response is ryan gosling
+  var choice = results.response.index;
+  if (index == 0) { //response is ryan gosling
     session.endDialog(`You're going to like this! Just follow this link: https://i.imgflip.com/a6znr.jpg`);
   }
   if (index == 1) { //response is song
@@ -98,8 +126,7 @@ var gift = function (session, results) {
 var bot = new builder.UniversalBot(connector, [
   itemSelection,
   summary,
-  confirmation,
-
+  confirmation
 ]);
 
 
