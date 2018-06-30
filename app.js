@@ -19,13 +19,13 @@ server.post('/api/messages', connector.listen());
 
 
 var itemSelection = function (session) {
-  var formattedMsg = session.message.text.toLowerCase();
+  // var formattedMsg = session.message.text.toLowerCase();
   var options = [];
   store.products.forEach( function(element) {
     options.push(element.name)
   });
-  console.log(formattedMsg)
-  var result = store.products.find(product => formattedMsg.indexOf(product.name)>=0);
+  // console.log(formattedMsg)
+  // var result = store.products.find(product => formattedMsg.indexOf(product.name)>=0);
   //session.send("You said: %s", session.message.text);
   builder.Prompts.choice(
       session,
@@ -33,7 +33,7 @@ var itemSelection = function (session) {
       options,
       {
           maxRetries: 3,
-          retryPrompt: "I'm sorry, that's not an option. Please try again!",
+          retryPrompt: "Oh no! We don't have that, I'm sorry! Would you like to try one of these?",
           listStyle:builder.ListStyle.button
       });
 };
@@ -56,43 +56,44 @@ var summary = function (session, results) {
 
 var confirmation = function (session, results) {
   console.log('in getPin'+results.response.index);
-  var index = results.response.index;
+  var index = results.response.index; // = 0
   if (index==1) { //response is cancel
     session.endDialog(`OK, we've cancelled your order. Just message us again if you need anything else! We support your decisions! You do you!`);
   }
   if (index == 0) { //response is yes
     session.send(`Great! Glad to be there for you Joyce. We'll be there for you within 30 minutes.`);
-    // followup(session, results);
+    session.endDialogWithResult(results)
+    followup(session, results);
   }
 };
 
-// var followup = function (session, results) {
-//   {console.log(results)};
-//   builder.Prompts.choice(
-//     session,
-//      `We know waiting is one of the hardest things to do, so here's something from us in the meantime to keep you going... which would you prefer?`,
-//      ['Ryan Gosling', 'Empowering song', 'Sad girl poetry'],
-//      {
-//          maxRetries: 3,
-//         retryPrompt: "I'm sorry, that's not an option. Please try again!",
-//         listStyle:builder.ListStyle.button
-//     });
-//     gift(session, results);
-//   };
+var followup = function (session, results) {
+  {console.log(results)}; // = 0
+  builder.Prompts.choice(
+    session,
+     `We know waiting is one of the hardest things to do, so here's something from us in the meantime to keep you going... which would you prefer?`,
+     ['Ryan Gosling', 'Empowering song', 'Sad girl poetry'],
+     {
+         maxRetries: 3,
+        retryPrompt: "I'm sorry, that's not an option. Please try again!",
+        listStyle:builder.ListStyle.button
+    });
+    gift(session, results);
+  };
 
-// var gift = function (session, results) {
-//   {console.log(results)};
-//   var index = results.response.index;
-//   if (index==0) { //response is ryan gosling
-//     session.endDialog(`You're going to like this! Just follow this link: https://i.imgflip.com/a6znr.jpg`);
-//   }
-//   if (index == 1) { //response is song
-//     session.endDialog(`You're going to like this! Just follow this link: https://i.imgflip.com/a6znr.jpg`);
-//   }
-//   if (index == 2) { //response is poetry
-//     session.endDialog(`You're going to like this! Just follow this link: https://assets.rbl.ms/10463908/980x.png`);
-//   }
-// };
+var gift = function (session, results) {
+  {console.log(results)};
+  var index = results.response.index;
+  if (index==0) { //response is ryan gosling
+    session.endDialog(`You're going to like this! Just follow this link: https://i.imgflip.com/a6znr.jpg`);
+  }
+  if (index == 1) { //response is song
+    session.endDialog(`You're going to like this! Just follow this link: https://i.imgflip.com/a6znr.jpg`);
+  }
+  if (index == 2) { //response is poetry
+    session.endDialog(`You're going to like this! Just follow this link: https://assets.rbl.ms/10463908/980x.png`);
+  }
+};
 
 var bot = new builder.UniversalBot(connector, [
   itemSelection,

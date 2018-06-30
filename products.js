@@ -1,20 +1,20 @@
 var products = [{
-  name: 'hot chocolate',
+  name: 'Hot Chocolate',
   sentiment: 0.3,
   price: '5.00'
 },
 {
-  name: 'flowers',
+  name: 'Flowers',
   sentiment: 1,
   price: '10.00'
 },
 {
-  name: 'mac n cheese',
+  name: 'Mac n Cheese',
   sentiment: -0.2,
   price: '8.00'
 },
 {
-  name: 'bubble bath',
+  name: 'Bubble Bath',
   sentiment: -0.3,
   price: '5.00'
 },
