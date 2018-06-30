@@ -94,19 +94,7 @@ var followup = function (session, results) {
           retryPrompt: "I'm sorry, that's not an option. Please try again!",
           listStyle:builder.ListStyle.button
       });
-  }, 3000).then( function() {
-    var choice = results.response.index;
-    if (index == 0) { //response is ryan gosling
-      session.endDialog(`You're going to like this! Just follow this link: https://i.imgflip.com/a6znr.jpg`);
-    }
-    if (index == 1) { //response is song
-      session.endDialog(`You're going to like this! Just follow this link: https://i.imgflip.com/a6znr.jpg`);
-    }
-    if (index == 2) { //response is poetry
-      session.endDialog(`You're going to like this! Just follow this link: https://assets.rbl.ms/10463908/980x.png`);
-    }
-  });
-  
+  }, 6000)  
   };
 
 var gift = function (session, results) {
