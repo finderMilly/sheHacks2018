@@ -36,7 +36,7 @@ var itemSelection = function (session) {
           retryPrompt: "I'm sorry, that's not an option. Please try again!",
           listStyle:builder.ListStyle.button
       });
-}
+};
 
 var summary = function (session, results) {
   console.log(results.response);
@@ -54,9 +54,35 @@ var summary = function (session, results) {
     });
 };
 
+var getPin = function (session, results) {
+  console.log('in getPin'+results.response.index);
+  var index = results.response.index;
+  if (index==1) { //response is cancel
+    session.endDialog(`Okay, we've cancelled your order. Just message us again if you need anything else! We support your decisions! You do you!`);
+  }
+  if (index == 0) { //response is yes
+    session.endDialog(`Thank you! Your order is on it's way. Don't forget that you're awesome and you can do anything!`);
+  }
+/*
+  var result = store.products.find(product => results.response.entity.indexOf(product.name)>=0);
+  console.log(result);
+  builder.Prompts.choice(
+    session,
+    `You have selected ${results.response.entity} which costs $${result.price}. We estimate this will be delivered within 30 minutes. Would you like to continue?`,
+    ['Yes', 'No - cancel'],
+    {
+        maxRetries: 3,
+        retryPrompt: "I'm sorry, that's not an option. Please try again!",
+        listStyle:builder.ListStyle.button
+    });
+    */
+
+};
+
 var bot = new builder.UniversalBot(connector, [
   itemSelection,
-  summary
+  summary,
+  getPin
 ]);
 
 
