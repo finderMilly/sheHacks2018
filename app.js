@@ -21,8 +21,8 @@ server.post('/api/messages', connector.listen());
 
 var bot = new builder.UniversalBot(connector, function (session) {
     var formattedMsg = session.message.text.toLowerCase();
-    console.log(formattedMsg)
-    var result = products.find(product => formattedMsg.indexOf(product.name)>=0);
+    console.log({formattedMsg});
+    var result = store.products.find(product => formattedMsg.indexOf(product.name)>=0);
     //session.send("You said: %s", session.message.text);
     builder.Prompts.choice(
         session,
