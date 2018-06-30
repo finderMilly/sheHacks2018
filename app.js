@@ -1,5 +1,6 @@
 var restify = require('restify');
 var builder = require('botbuilder');
+var store = require('./products.js');
 
 // Setup Restify Server
 var server = restify.createServer();
@@ -16,13 +17,12 @@ var connector = new builder.ChatConnector({
 // Listen for messages from users 
 server.post('/api/messages', connector.listen());
 
-var products = [{
-    name: 'Hot chocolate',
-    price: '14.50'
-}];
+
 
 var bot = new builder.UniversalBot(connector, function (session) {
-    var result = products.find(product => session.message.text == product.name);
+    var formattedMsg = session.message.text.toLowerCase();
+    console.log(formattedMsg)
+    var result = products.find(product => formattedMsg.indexOf(product.name)>=0);
     //session.send("You said: %s", session.message.text);
     builder.Prompts.choice(
         session,
