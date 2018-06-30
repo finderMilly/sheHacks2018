@@ -20,22 +20,17 @@ server.post('/api/messages', connector.listen());
 
 
 var itemSelection = function (session) {
-  // var formattedMsg = session.message.text.toLowerCase();
+
   analysis.get_sentiments(session.message.text, function(result) { 
     var options = [];
-    session.send(`${result.documents[0].score}`)
     var score = result.documents[0].score;
 
   store.products.forEach( function(product) {
     if (Math.abs(product.sentiment - score) < .3 ) {
       options.push(product.name)
     }
-
   });
 
-  // console.log(formattedMsg)
-  // var result = store.products.find(product => formattedMsg.indexOf(product.name)>=0);
-  //session.send("You said: %s", session.message.text);
   var response = "";
   if (score > .5 ) {
     response = `Let's Celebrate! Would you like to spoil yourself with one of the following?`;
@@ -71,7 +66,6 @@ var summary = function (session, results) {
 };
 
 var confirmation = function (session, results) {
-  console.log('in getPin'+results.response.index);
   var index = results.response.index; // = 0
   if (index==1) { //response is cancel
     session.endDialog(`OK, we've cancelled your order. Just message us again if you need anything else! We support your decisions! You do you!`);
@@ -83,7 +77,6 @@ var confirmation = function (session, results) {
 };
 
 var followup = function (session, results) {
-  {console.log(results)}; // = 0
   setTimeout(function(){ 
     builder.Prompts.choice(
       session,
@@ -116,14 +109,6 @@ var bot = new builder.UniversalBot(connector, [
   summary,
   confirmation
 ]);
-
-
-
-// var respond = async function (session, results, next) {
-//   session.dialogData.destination = results.response;
-//   session.send('Looking for hotels in %s', results.response);
-//   next();
-// }
 
 
 bot.on('error', function (e) {
