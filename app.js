@@ -18,31 +18,45 @@ var connector = new builder.ChatConnector({
 server.post('/api/messages', connector.listen());
 
 
+var itemSelection = function (session) {
+  var formattedMsg = session.message.text.toLowerCase();
+  var options = [];
+  store.products.forEach( function(element) {
+    options.push(element.name)
+  });
+  console.log(formattedMsg)
+  var result = store.products.find(product => formattedMsg.indexOf(product.name)>=0);
+  //session.send("You said: %s", session.message.text);
+  builder.Prompts.choice(
+      session,
+      'May I offer one of the following options?',
+      options,
+      {
+          maxRetries: 3,
+          retryPrompt: "I'm sorry, that's not an option. Please try again!",
+          listStyle:builder.ListStyle.button
+      });
+}
+
+var summary = function (session, results) {
+  console.log(results.response);
+  var index = results.response.index;
+  var result = store.products.find(product => results.response.entity.indexOf(product.name)>=0);
+  console.log(result);
+  builder.Prompts.choice(
+    session,
+    `You have selected ${results.response.entity} which costs $${result.price}. We estimate this will be delivered within 30 minutes. Would you like to continue?`,
+    ['Yes', 'No - cancel'],
+    {
+        maxRetries: 3,
+        retryPrompt: "I'm sorry, that's not an option. Please try again!",
+        listStyle:builder.ListStyle.button
+    });
+};
 
 var bot = new builder.UniversalBot(connector, [
-  function (session) {
-    var formattedMsg = session.message.text.toLowerCase();
-    var options = [];
-    store.products.forEach( function(element) {
-      options.push(element.name)
-    });
-    console.log(formattedMsg)
-    var result = store.products.find(product => formattedMsg.indexOf(product.name)>=0);
-    //session.send("You said: %s", session.message.text);
-    builder.Prompts.choice(
-        session,
-        'May I offer one of the following options?',
-        options,
-        {
-            maxRetries: 3,
-            retryPrompt: "I'm sorry, that's not an option. Please try again!",
-            listStyle:builder.ListStyle.button
-        });
-},
-function (session, results) {
-  session.dialogData.destination = results.response;
-  builder.Prompts.text(`You have selected ${results.response}`);
-}
+  itemSelection,
+  summary
 ]);
 
 
