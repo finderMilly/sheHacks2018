@@ -56,7 +56,7 @@ var summary = function (session, results) {
   console.log(result);
   builder.Prompts.choice(
     session,
-    `OK, cool, I'll grab some ${results.response.entity} for you which will cost $${result.price}. We can get it to you within 30 minutes. What do you think?`,
+    `OK, cool. I'll grab some ${results.response.entity} for you which will cost $${result.price}. We can get it to you within 30 minutes. What do you think?`,
     ['Yes please', 'No - cancel'],
     {
         maxRetries: 3,
@@ -71,38 +71,39 @@ var confirmation = function (session, results) {
     session.endDialog(`OK, we've cancelled your order. Just message us again if you need anything else! We support your decisions! You do you!`);
   }
   if (index == 0) { //response is yes
-    session.send(`Great! Glad to be there for you Joyce. We'll be there for you within 30 minutes.`);
+    session.send(`Perfect! I'm glad to be here for you Joyce. In fact, I'll be here in 30 minutes for you. ☺️`);
     followup(session, results);
   }
 };
 
 var followup = function (session, results) {
   setTimeout(function(){ 
-    builder.Prompts.choice(
-      session,
-       `We know waiting is one of the hardest things to do, so here's something from us in the meantime to keep you going... which would you prefer?`,
-       ['Ryan Gosling', 'Empowering song', 'Sad girl poetry'],
-       {
-           maxRetries: 3,
-          retryPrompt: "I'm sorry, that's not an option. Please try again!",
-          listStyle:builder.ListStyle.button
-      });
+    session.send(`We know waiting is one of the hardest things to do, so here's something from us in the meantime to keep you going... Just follow this link: https://i.imgflip.com/a6znr.jpg`)
+    // builder.Prompts.choice(
+    //   session,
+    //    `We know waiting is one of the hardest things to do, so here's something from us in the meantime to keep you going... which would you prefer?`,
+    //    ['Ryan Gosling', 'Empowering song', 'Sad girl poetry'],
+    //    {
+    //        maxRetries: 3,
+    //       retryPrompt: "I'm sorry, that's not an option. Please try again!",
+    //       listStyle:builder.ListStyle.button
+    //   });
   }, 6000)  
   };
 
-var gift = function (session, results) {
-  {console.log(results)};
-  var choice = results.response.index;
-  if (index == 0) { //response is ryan gosling
-    session.endDialog(`You're going to like this! Just follow this link: https://i.imgflip.com/a6znr.jpg`);
-  }
-  if (index == 1) { //response is song
-    session.endDialog(`You're going to like this! Just follow this link: https://i.imgflip.com/a6znr.jpg`);
-  }
-  if (index == 2) { //response is poetry
-    session.endDialog(`You're going to like this! Just follow this link: https://assets.rbl.ms/10463908/980x.png`);
-  }
-};
+// var gift = function (session, results) {
+//   {console.log(results)};
+//   var choice = results.response.index;
+//   if (index == 0) { //response is ryan gosling
+//     session.endDialog(`You're going to like this! Just follow this link: https://i.imgflip.com/a6znr.jpg`);
+//   }
+//   if (index == 1) { //response is song
+//     session.endDialog(`You're going to like this! Just follow this link: https://i.imgflip.com/a6znr.jpg`);
+//   }
+//   if (index == 2) { //response is poetry
+//     session.endDialog(`You're going to like this! Just follow this link: https://assets.rbl.ms/10463908/980x.png`);
+//   }
+// };
 
 var bot = new builder.UniversalBot(connector, [
   itemSelection,
